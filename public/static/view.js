@@ -32,7 +32,10 @@ window.onload = async()=>{
     const title = document.getElementById('title');
     const statics = document.getElementById('statics');
     const result = document.getElementById('result');
+    const url = document.getElementById('url');
     title.textContent = data.title;
+
+    url.value = `${location.origin}/api/v1/votes/${voteId}`;
 
     const count = Object.entries(countByValue(data.answers.map((answer) => answer.value))).sort((a, b) => b[1] - a[1]);
     count.forEach((entry) => {
