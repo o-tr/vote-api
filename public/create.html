@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>投票作成</title>
+  <script src="/static/create.js"></script>
+  <link rel="stylesheet" href="/static/create.css">
+</head>
+<body>
+  <h1>投票作成</h1>
+  <form action="/create" method="post" id="form">
+    <div>
+      <label for="title">
+        タイトル
+      </label>
+      <input type="text" name="title" id="title" required>
+    </div>
+    <div>
+      <label for="content">
+        概要
+      </label>
+      <textarea name="content" id="content" required></textarea>
+    </div>
+    <div>
+      <label>
+        選択肢
+      </label>
+      <div>
+        <ul id="choices">
+        </ul>
+        <div>
+          <input type="text" id="add-choice-value">
+          <button id="add-choice" type="button">追加</button>
+        </div>
+      </div>
+    </div>
+    <div>
+      <label for="password">
+        パスワード
+      </label>
+      <input type="password" name="password" id="password" required>
+    </div>
+    <button type="submit">作成</button>
+  </form>
+  <a href="/">戻る</a>
+</body>
+</html>
