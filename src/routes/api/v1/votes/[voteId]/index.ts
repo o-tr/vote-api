@@ -60,12 +60,18 @@ const getIndex = (app: Hono) => {
 const patchSchema = z.object({
   title: z.string().optional(),
   content: z.string().optional(),
-  password: z.string(),
 });
 
 const patchIndex = (app: Hono) => {
   app.patch("/:voteId", zValidator("json", patchSchema), async(c) => {
-    const {title, content, password} = c.req.valid("json");
+    const {title, content} = c.req.valid("json");
+    const basicAuth = c.req.header("Authorization");
+    if (!basicAuth){
+      return c.json({
+        error: "Unauthorized"
+      }, 401)
+    }
+    const password = Buffer.from(basicAuth.split(" ")[1], "base64").toString("utf-8").split(":")[1];
     
     const vote = await prisma.vote.findUnique({
       where: {
@@ -77,12 +83,6 @@ const patchIndex = (app: Hono) => {
       return c.json({
         error: "Vote not found",
       }, 404);
-    }
-    
-    if (!vote.password){
-      return c.json({
-        error: "Vote has no password",
-      }, 401);
     }
     
     if (!password || !await isPasswordValid(password, vote.password)) {
