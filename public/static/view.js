@@ -12,7 +12,7 @@ window.onload = async()=>{
   }
 
   initButton.addEventListener('click', async()=>{
-    const req = await fetch(`/api/v1/votes/${voteId}`, {
+    const req = await fetch(`/api/v1/votes/${voteId}/result`, {
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `basic ${btoa(`hoge:${password.value}`)}`,

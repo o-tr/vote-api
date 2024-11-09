@@ -5,6 +5,7 @@ import {prisma} from "@/lib/prisma";
 import {isPasswordValid} from "@/lib/password";
 import {registerApiRegister} from "@/routes/api/v1/votes/[voteId]/register";
 import {registerApiSetName} from "@/routes/api/v1/votes/[voteId]/set-name";
+import {registerApiV1VotesVoteIdResult} from "@/routes/api/v1/votes/[voteId]/result";
 
 export const registerVoteRoute = (app: Hono) => {
   getIndex(app);
@@ -12,49 +13,30 @@ export const registerVoteRoute = (app: Hono) => {
   deleteIndex(app);
   registerApiRegister(app);
   registerApiSetName(app);
+  registerApiV1VotesVoteIdResult(app);
 }
 
 const getIndex = (app: Hono) => {
-  app.get("/:voteId", async(c)=>{
-    const basicAuth = c.req.header("Authorization");
-    if (!basicAuth){
-      return c.json({
-        error: "Unauthorized"
-      }, 401)
-    }
-    const password = Buffer.from(basicAuth.split(" ")[1], "base64").toString("utf-8").split(":")[1];
-    const voteId = c.req.param("voteId");
-
-    const vote = await prisma.vote.findFirst({
-      where:{
-        id: voteId,
-      },
-      include:{
-        answers: true,
+  app.get("/:voteId", async(c) => {
+    const vote = await prisma.vote.findUnique({
+      where: {
+        id: c.req.param("voteId"),
       }
-    })
+    });
     
-    if (!vote){
+    if (!vote) {
       return c.json({
         error: "Vote not found",
-      }, 404)
-    }
-    
-    if (!password || !await isPasswordValid(password, vote.password)){
-      return c.json({
-        error: "Unauthorized"
-      }, 401)
+      }, 404);
     }
     
     return c.json({
+      id: vote.id,
       title: vote.title,
       content: vote.content,
-      answers: vote.answers.map((v)=>({
-        name: v.name,
-        value: v.value,
-      }))
-    })
-  })
+      options: JSON.parse(vote.options),
+    });
+  });
 }
 
 const patchSchema = z.object({
