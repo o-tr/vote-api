@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>投票結果閲覧</title>
+  <script src="/static/view.js"></script>
+  <link rel="stylesheet" href="/static/view.css">
+</head>
+<body>
+<div id="init">
+  <label for="password">パスワード</label><input type="password" required name="password" id="password">
+  <button id="init-button">結果を見る</button>
+</div>
+<div id="main">
+  <h1 id="title"></h1>
+  <table>
+    <thead>
+    <tr>
+      <th>投票先</th>
+      <th>回答数</th>
+    </tr>
+    </thead>
+    <tbody id="statics">
+    </tbody>
+  </table>
+  <table>
+    <thead>
+    <tr>
+      <th>名前</th>
+      <th>投票先</th>
+    </tr>
+    </thead>
+    <tbody id="result">
+    </tbody>
+  </table>
+  <a href="/">戻る</a>
+</div>
+</body>
+</html>

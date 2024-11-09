@@ -16,7 +16,13 @@ export const registerVoteRoute = (app: Hono) => {
 
 const getIndex = (app: Hono) => {
   app.get("/:voteId", async(c)=>{
-    const password = c.req.header("X-Password");
+    const basicAuth = c.req.header("Authorization");
+    if (!basicAuth){
+      return c.json({
+        error: "Unauthorized"
+      }, 401)
+    }
+    const password = Buffer.from(basicAuth.split(" ")[1], "base64").toString("utf-8").split(":")[1];
     const voteId = c.req.param("voteId");
 
     const vote = await prisma.vote.findFirst({
@@ -54,7 +60,7 @@ const getIndex = (app: Hono) => {
 const patchSchema = z.object({
   title: z.string().optional(),
   content: z.string().optional(),
-  password: z.string().optional(),
+  password: z.string(),
 });
 
 const patchIndex = (app: Hono) => {
