@@ -2,6 +2,7 @@ window.onload = async()=>{
   const init = document.getElementById('init');
   const password = document.getElementById('password');
   const initButton = document.getElementById('init-button');
+  const main = document.getElementById('main');
 
   const voteId = new URLSearchParams(location.search).get('id');
 
@@ -55,6 +56,7 @@ window.onload = async()=>{
       div.appendChild(value);
       result.appendChild(div);
     })
+    main.style.display = 'block';
   }
   const countByValue = (array) => {
     const result = {};
