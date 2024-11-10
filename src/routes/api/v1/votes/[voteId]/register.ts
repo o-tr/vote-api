@@ -37,9 +37,14 @@ export const registerApiRegister = (app: Hono) => {
     const answer = await createOrUpdateAnswer(voteId, value, ip);
     
     return c.json({
-      id: answer.id,
-      voteId: answer.voteId,
-      value: answer.value,
+      id: answer.vote.id,
+      title: answer.vote.title,
+      content: answer.vote.content,
+      options: JSON.parse(answer.vote.options),
+      answer: {
+        value: answer.value,
+        name: answer.name,
+      }
     });
   });
 }
@@ -59,6 +64,9 @@ const createOrUpdateAnswer = async (voteId: string, value: string, ip: string) =
       },
       data: {
         value,
+      },
+      include:{
+        vote: true,
       }
     });
   }else{
@@ -67,6 +75,9 @@ const createOrUpdateAnswer = async (voteId: string, value: string, ip: string) =
         voteId,
         ip,
         value,
+      },
+      include:{
+        vote: true,
       }
     });
   }
