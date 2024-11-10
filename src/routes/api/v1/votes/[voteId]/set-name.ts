@@ -8,31 +8,46 @@ export const registerApiSetName = (app: Hono) => {
     const name = c.req.param("name").replace(/^.*?-->/g, "").trim();
     const ip = getRequestIp(c);
     
-    const answer = await prisma.answer.findFirst({
+    const current = await prisma.answer.findFirst({
       where: {
         voteId,
         ip,
       }
     });
     
-    if (!answer) {
+    if (!current) {
       return c.json({
         error: "Answer not found",
       }, 404);
     }
     
-    await prisma.answer.update({
+    const answer = await prisma.answer.update({
       where: {
-        id: answer.id,
+        id: current.id,
       },
       data: {
         name,
+      },
+      include:{
+        vote: true,
       }
     });
     
+    if (!answer.vote){
+      return c.json({
+        error: "Vote not found",
+      }, 404);
+    }
+    
     return c.json({
-      voteId,
-      name,
+      id: answer.vote.id,
+      title: answer.vote.title,
+      content: answer.vote.content,
+      options: JSON.parse(answer.vote.options),
+      answer: {
+        value: answer.value,
+        name: answer.name,
+      }
     });
   });
 }
