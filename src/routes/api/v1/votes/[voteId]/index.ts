@@ -6,6 +6,7 @@ import {isPasswordValid} from "@/lib/password";
 import {registerApiRegister} from "@/routes/api/v1/votes/[voteId]/register";
 import {registerApiSetName} from "@/routes/api/v1/votes/[voteId]/set-name";
 import {registerApiV1VotesVoteIdResult} from "@/routes/api/v1/votes/[voteId]/result";
+import {getRequestIp} from "@/utils/getRequestIp";
 
 export const registerVoteRoute = (app: Hono) => {
   getIndex(app);
@@ -18,9 +19,10 @@ export const registerVoteRoute = (app: Hono) => {
 
 const getIndex = (app: Hono) => {
   app.get("/:voteId", async(c) => {
+    const voteId = c.req.param("voteId");
     const vote = await prisma.vote.findUnique({
       where: {
-        id: c.req.param("voteId"),
+        id: voteId,
       }
     });
     
@@ -30,11 +32,24 @@ const getIndex = (app: Hono) => {
       }, 404);
     }
     
+    const ip = getRequestIp(c);
+    
+    const answer = await prisma.answer.findFirst({
+      where: {
+        voteId,
+        ip,
+      }
+    });
+    
     return c.json({
       id: vote.id,
       title: vote.title,
       content: vote.content,
       options: JSON.parse(vote.options),
+      answer: answer ? {
+        value: answer.value,
+        name: answer.name,
+      } : null,
     });
   });
 }
