@@ -16,9 +16,24 @@ export const registerApiSetName = (app: Hono) => {
     });
     
     if (!current) {
+      const vote = await prisma.vote.findUnique({
+        where: {
+          id: voteId,
+        }
+      });
+      if (!vote) {
+        return c.json({
+          error: "Vote not found",
+        }, 404);
+      }
+      
       return c.json({
-        error: "Answer not found",
-      }, 404);
+        id: vote.id,
+        title: vote.title,
+        content: `${vote.content}\n\n投票後に名前を登録してください`,
+        options: JSON.parse(vote.options),
+        answer: null,
+      });
     }
     
     const answer = await prisma.answer.update({
