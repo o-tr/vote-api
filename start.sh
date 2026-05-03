@@ -1,1 +1,1 @@
-npx prisma generate&&npm run dev
+npx prisma generate && npx tsx src/index.ts

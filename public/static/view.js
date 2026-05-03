@@ -16,7 +16,7 @@ window.onload = async()=>{
     const req = await fetch(`/api/v1/votes/${voteId}/result`, {
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `basic ${btoa(`hoge:${password.value}`)}`,
+        'Authorization': `Basic ${btoa(`hoge:${password.value}`)}`,
       },
     });
     const res = await req.json();

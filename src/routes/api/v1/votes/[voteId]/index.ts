@@ -3,6 +3,7 @@ import {z} from "zod";
 import {zValidator} from "@hono/zod-validator";
 import {prisma} from "@/lib/prisma";
 import {isPasswordValid} from "@/lib/password";
+import {extractBasicAuthPassword} from "@/utils/basicAuth";
 import {registerApiRegister} from "@/routes/api/v1/votes/[voteId]/register";
 import {registerApiSetName} from "@/routes/api/v1/votes/[voteId]/set-name";
 import {registerApiV1VotesVoteIdResult} from "@/routes/api/v1/votes/[voteId]/result";
@@ -34,18 +35,29 @@ const getIndex = (app: Hono) => {
     
     const ip = getRequestIp(c);
     
-    const answer = await prisma.answer.findFirst({
+    const answer = await prisma.answer.findUnique({
       where: {
-        voteId,
-        ip,
+        ip_voteId: {
+          ip,
+          voteId,
+        }
       }
     });
+    
+    let options: string[];
+    try {
+      options = JSON.parse(vote.options);
+    } catch {
+      return c.json({
+        error: "Invalid vote options",
+      }, 500);
+    }
     
     return c.json({
       id: vote.id,
       title: vote.title,
       content: vote.content,
-      options: JSON.parse(vote.options),
+      options,
       answer: answer ? {
         value: answer.value,
         name: answer.name,
@@ -68,7 +80,7 @@ const patchIndex = (app: Hono) => {
         error: "Unauthorized"
       }, 401)
     }
-    const password = Buffer.from(basicAuth.split(" ")[1], "base64").toString("utf-8").split(":")[1];
+    const password = extractBasicAuthPassword(basicAuth);
     
     const vote = await prisma.vote.findUnique({
       where: {
@@ -108,6 +120,14 @@ const patchIndex = (app: Hono) => {
 
 const deleteIndex = (app: Hono) => {
   app.delete("/:voteId", async(c) => {
+    const basicAuth = c.req.header("Authorization");
+    const password = extractBasicAuthPassword(basicAuth);
+    if (!password){
+      return c.json({
+        error: "Unauthorized"
+      }, 401)
+    }
+    
     const vote = await prisma.vote.findUnique({
       where: {
         id: c.req.param("voteId"),
@@ -118,6 +138,12 @@ const deleteIndex = (app: Hono) => {
       return c.json({
         error: "Vote not found",
       }, 404);
+    }
+    
+    if (!await isPasswordValid(password, vote.password)) {
+      return c.json({
+        error: "Invalid password",
+      }, 401);
     }
     
     await prisma.vote.delete({

@@ -6,8 +6,7 @@ import {serveStatic} from "@hono/node-server/serve-static";
 
 const app = new Hono()
 
-app.get('/*',serveStatic({root:"./public/",index:"index.html"}))
-app.get('/static/*',serveStatic({root:"./public/",index:"index.html"}))
+app.use('/*',serveStatic({root:"./public/",index:"index.html"}))
 
 registerApi(app);
 

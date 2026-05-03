@@ -61,9 +61,10 @@ window.onload = async()=>{
     choiceArray.push(addChoiceValue.value);
     const button = document.createElement('button');
     button.innerText = '削除';
+    const capturedValue = addChoiceValue.value;
     button.addEventListener('click', () => {
       div.remove();
-      choiceArray = choiceArray.filter((v) => v !== addChoiceValue.value);
+      choiceArray = choiceArray.filter((v) => v !== capturedValue);
     });
     div.appendChild(button);
     choices.appendChild(div);

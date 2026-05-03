@@ -14,7 +14,7 @@ export const registerApiVote = (app: Hono) => {
 
 const postSchema = z.object({
   title: z.string(),
-  content: z.string().optional(),
+  content: z.string(),
   options: z.array(z.string()),
   password: z.string().max(32),
 })

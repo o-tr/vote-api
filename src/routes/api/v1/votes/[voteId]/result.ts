@@ -1,5 +1,6 @@
 import {prisma} from "@/lib/prisma";
 import {isPasswordValid} from "@/lib/password";
+import {extractBasicAuthPassword} from "@/utils/basicAuth";
 import {Hono} from "hono";
 
 export const registerApiV1VotesVoteIdResult = (app: Hono) => {
@@ -10,10 +11,10 @@ export const registerApiV1VotesVoteIdResult = (app: Hono) => {
         error: "Unauthorized"
       }, 401)
     }
-    const password = Buffer.from(basicAuth.split(" ")[1], "base64").toString("utf-8").split(":")[1];
+    const password = extractBasicAuthPassword(basicAuth);
     const voteId = c.req.param("voteId");
     
-    const vote = await prisma.vote.findFirst({
+    const vote = await prisma.vote.findUnique({
       where:{
         id: voteId,
       },

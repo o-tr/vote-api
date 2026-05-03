@@ -27,7 +27,14 @@ export const registerApiRegister = (app: Hono) => {
       }, 404);
     }
     
-    const options = JSON.parse(vote.options) as string[];
+    let options: string[];
+    try {
+      options = JSON.parse(vote.options) as string[];
+    } catch {
+      return c.json({
+        error: "Invalid vote options",
+      }, 500);
+    }
     if (!options.includes(value)){
       return c.json({
         error: "Invalid value",
@@ -36,11 +43,20 @@ export const registerApiRegister = (app: Hono) => {
     
     const answer = await createOrUpdateAnswer(voteId, value, ip);
     
+    let answerOptions: string[];
+    try {
+      answerOptions = JSON.parse(answer.vote.options);
+    } catch {
+      return c.json({
+        error: "Invalid vote options",
+      }, 500);
+    }
+    
     return c.json({
       id: answer.vote.id,
       title: answer.vote.title,
       content: answer.vote.content,
-      options: JSON.parse(answer.vote.options),
+      options: answerOptions,
       answer: {
         value: answer.value,
         name: answer.name,
@@ -50,35 +66,23 @@ export const registerApiRegister = (app: Hono) => {
 }
 
 const createOrUpdateAnswer = async (voteId: string, value: string, ip: string) => {
-  const answer = await prisma.answer.findFirst({
+  return prisma.answer.upsert({
     where: {
-      voteId: voteId,
-      ip: ip,
-    }
-  })
-  
-  if (answer) {
-    return prisma.answer.update({
-      where: {
-        id: answer.id,
-      },
-      data: {
-        value,
-      },
-      include:{
-        vote: true,
-      }
-    });
-  }else{
-    return prisma.answer.create({
-      data: {
-        voteId,
+      ip_voteId: {
         ip,
-        value,
-      },
-      include:{
-        vote: true,
+        voteId,
       }
-    });
-  }
+    },
+    update: {
+      value,
+    },
+    create: {
+      voteId,
+      ip,
+      value,
+    },
+    include: {
+      vote: true,
+    }
+  });
 }

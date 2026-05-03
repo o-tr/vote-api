@@ -10,6 +10,7 @@ RUN pnpm install --frozen-lockfile
 
 # Prepare node_modules
 COPY ./ ./
+RUN npx prisma generate
 
 # Run phase
 FROM --platform=linux/amd64 node:$NODE_VERSION AS runner
