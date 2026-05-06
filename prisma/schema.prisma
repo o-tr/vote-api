@@ -18,7 +18,7 @@ model Vote {
   title     String
   content   String?
   password  String
-  options   String
+  options   String   @db.Text
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   answers   Answer[]
